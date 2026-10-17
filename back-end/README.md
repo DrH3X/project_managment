@@ -76,6 +76,7 @@ npm run lint
 ## Documentation API
 
 - `docs/api/sprint-0.md` — contrat détaillé du sprint 0 (fondations, authentification, utilisateurs).
+- `docs/api/sprint-1.md` — contrat détaillé du sprint 1 (gestion des projets).
 
 ## Variables d'environnement
 
@@ -91,3 +92,4 @@ npm run lint
 ## Avancement
 
 - **Sprint 0 ✅** — Fondations, authentification, utilisateurs, employés.
+- **Sprint 1 ✅** — Gestion des projets (CRUD, unicité du nom insensible à la casse, visibilité par rôle, statut non modifiable).

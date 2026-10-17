@@ -1,0 +1,17 @@
+# Dépendances
+node_modules/
+
+# Variables d'environnement (jamais versionnées)
+.env
+
+# Build & tests
+coverage/
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Système
+.DS_Store

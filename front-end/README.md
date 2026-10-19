@@ -1,8 +1,11 @@
 # Front-end — Plateforme de gestion de projets et tâches
 
 Application Next.js (App Router) de gestion des projets, des tâches et des équipes
-pour une entreprise informatique. **Sprint 0 livré** : fondations, authentification
-et gestion des utilisateurs.
+pour une entreprise informatique.
+
+**Sprints livrés :**
+- **Sprint 0** : fondations, authentification et gestion des utilisateurs.
+- **Sprint 1** : gestion des projets (liste, détail, création, modification, suppression).
 
 ## Stack technique
 
@@ -52,16 +55,22 @@ npm test          # mode watch (Vitest)
 npm run test:run  # exécution unique
 ```
 
-Couverture du Sprint 0 :
+Couverture :
 
+### Sprint 0
 - **Formulaire de connexion** (`src/__tests__/login-form.test.tsx`) : rendu des
-  champs, validation (email obligatoire et valide, mot de passe obligatoire),
-  appel de `login` avec les bonnes valeurs, message d'erreur sur identifiants
-  incorrects (`INVALID_CREDENTIALS`), redirection si déjà authentifié.
-- **Garde des pages protégées** (`src/__tests__/auth-guard.test.tsx`) :
-  indicateur de chargement, redirection vers `/login` si non authentifié,
-  affichage du contenu si authentifié, redirection vers `/forbidden` si le rôle
-  est insuffisant.
+  champs, validation, appel de `login` avec les bonnes valeurs, message d'erreur
+  sur identifiants incorrects, redirection si déjà authentifié.
+- **Garde des pages protégées** (`src/__tests__/auth-guard.test.tsx`) : indicateur
+  de chargement, redirection vers `/login` si non authentifié, affichage du
+  contenu si authentifié, redirection vers `/forbidden` si rôle insuffisant.
+
+### Sprint 1
+- **Formulaire de création de projet** (`src/__tests__/project-form.test.tsx`) :
+  rendu des champs, validation (nom et dates obligatoires), erreur si date de fin
+  antérieure à la date de début, appel de `createProject` avec les bonnes valeurs,
+  redirection après succès, erreur de nom déjà utilisé (`PROJECT_NAME_TAKEN`)
+  affichée sous le champ nom.
 
 ## Linter
 
@@ -84,103 +93,121 @@ npm run build
 | EMPLOYE | `employe1@plateforme.local` | `Employe123!` |
 | EMPLOYE | `employe2@plateforme.local` | `Employe123!` |
 
-## Écrans livrés (Sprint 0)
+## Écrans livrés
+
+### Sprint 0 — Authentification et utilisateurs
 
 | Écran | Route | Rôles | Description |
 |-------|-------|-------|-------------|
-| Connexion | `/login` | public | Formulaire validé (email + mot de passe), message d'erreur clair sur identifiants incorrects, redirection selon le rôle après connexion. |
-| Tableau de bord | `/dashboard` | tous | Accueil par rôle (raccourcis ADMIN, message d'accueil CHEF_PROJET/EMPLOYE). |
-| Liste des utilisateurs | `/users` | ADMIN | Tableau avec recherche, filtre par rôle, boutons modifier/supprimer, suppression désactivée pour son propre compte. |
-| Création d'utilisateur | `/users/new` | ADMIN | Formulaire (nom, prénom, email, mot de passe ≥ 6, rôle) avec validation et erreur d'email déjà utilisé. |
-| Modification d'utilisateur | `/users/:id/edit` | ADMIN | Formulaire pré-rempli, mot de passe optionnel, gestion `EMAIL_TAKEN`. |
-| Employés | `/employees` | ADMIN | Liste en lecture seule des utilisateurs de rôle EMPLOYE. |
+| Connexion | `/login` | public | Formulaire validé, message d'erreur sur identifiants incorrects, redirection selon le rôle. |
+| Tableau de bord | `/dashboard` | tous | Accueil par rôle. |
+| Liste des utilisateurs | `/users` | ADMIN | Recherche, filtre par rôle, modifier/supprimer (confirmation). |
+| Création d'utilisateur | `/users/new` | ADMIN | Formulaire (nom, prénom, email, mot de passe ≥ 6, rôle). |
+| Modification d'utilisateur | `/users/:id/edit` | ADMIN | Formulaire pré-rempli, mot de passe optionnel. |
+| Employés | `/employees` | ADMIN | Liste en lecture seule des employés. |
 | Accès refusé | `/forbidden` | tous | Page 403. |
-| Page introuvable | *(toute route inconnue)* | tous | Page 404. |
+| Page introuvable | *(route inconnue)* | tous | Page 404. |
+
+### Sprint 1 — Gestion des projets
+
+| Écran | Route | Rôles | Description |
+|-------|-------|-------|-------------|
+| Liste des projets | `/projects` | tous (visibilité par rôle) | Tableau (nom, dates, badge de statut). Bouton « Créer » pour CHEF_PROJET. Actions modifier/supprimer réservées au propriétaire. |
+| Création de projet | `/projects/new` | CHEF_PROJET | Formulaire (nom, description, dateDebut, dateFin) avec validation des dates et erreur de nom déjà utilisé sous le champ. |
+| Détail d'un projet | `/projects/:id` | tous (visibilité par rôle) | Toutes les informations du projet (description, dates, statut, chef de projet, dates de création/maj). Boutons modifier/supprimer pour le propriétaire. |
+| Modification de projet | `/projects/:id/edit` | CHEF_PROJET propriétaire | Formulaire pré-rempli, validation des dates, erreur `PROJECT_NAME_TAKEN`. |
 
 ## Fonctionnalités clés
 
-- **Authentification JWT** : le jeton est stocké dans `localStorage` et ajouté
-  automatiquement à chaque requête par un intercepteur Axios. Une réponse 401
-  déconnecte l'utilisateur et le renvoie à la page de connexion.
-- **Rechargement de session** : au démarrage, si un jeton existe, l'utilisateur
-  courant est rechargé via `GET /api/auth/me`.
-- **Garde de rôle côté client** : le composant `AuthGuard` vérifie
-  l'authentification et le rôle ; le jeton étant dans `localStorage`, le
-  middleware Next.js ne peut pas le lire, la protection se fait donc côté client.
-- **Navigation adaptée au rôle** :
-  - ADMIN : Tableau de bord, Utilisateurs, Employés.
-  - CHEF_PROJET : Tableau de bord.
-  - EMPLOYE : Tableau de bord.
+- **Authentification JWT** : jeton dans `localStorage`, ajouté par intercepteur
+  Axios. Une réponse 401 déconnecte et redirige vers `/login`.
+- **Rechargement de session** au démarrage via `GET /api/auth/me`.
+- **Garde de rôle côté client** (`AuthGuard`) : le jeton étant dans `localStorage`,
+  la protection se fait côté client (redirection `/login` ou `/forbidden`).
+- **Navigation adaptée au rôle** : tous voient « Tableau de bord » et « Projets » ;
+  l'ADMIN voit aussi « Utilisateurs » et « Employés ».
+- **Gestion des projets** :
+  - Visibilité par rôle : ADMIN voit tous les projets, CHEF_PROJET voit les siens,
+    EMPLOYE voit ceux auxquels il participe (liste vide au sprint 1).
+  - Le statut d'un projet (`NON_COMMENCE`/`EN_COURS`/`TERMINE`) est calculé par
+    le serveur et affiché sous forme de badge coloré — l'interface ne permet
+    jamais de le modifier.
+  - Le nom d'un projet est unique (insensible à la casse) ; l'erreur
+    `PROJECT_NAME_TAKEN` s'affiche sous le champ nom.
+  - La date de fin doit être ≥ à la date de début (validation front + serveur
+    `DATE_RANGE_INVALID`).
+  - Suppression avec confirmation, réservée au chef de projet propriétaire.
+  - ADMIN et EMPLOYE consultent seulement : aucun bouton de création,
+    modification ni suppression.
 - **États gérés** sur chaque écran : chargement (squelettes), liste vide, erreur
   (avec bouton de réessai).
-- **Notifications** (toaster) : succès et erreurs lors des actions.
-- **Suppression avec confirmation** (dialogue) et gestion de l'erreur
-  `CANNOT_DELETE_SELF`.
-- **Interface en français**, adaptée aux ordinateurs et aux tablettes (menu
-  coulissant en dessous de `lg`).
+- **Notifications** (toaster) : succès et erreurs.
+- **Interface en français**, adaptée aux ordinateurs et aux tablettes.
 
 ## Structure du code
 
 ```
 src/
 ├── app/
-│   ├── layout.tsx              # Layout racine (Providers : Auth + Toaster)
-│   ├── page.tsx                # Redirection selon auth/role
-│   ├── providers.tsx           # Fournisseurs client
-│   ├── login/page.tsx          # Page de connexion
-│   ├── forbidden/page.tsx      # Page 403
-│   ├── not-found.tsx           # Page 404
-│   └── (app)/                  # Groupe de routes authentifiées
-│       ├── layout.tsx          # En-tête + nav + garde AuthGuard
-│       ├── dashboard/page.tsx
-│       ├── users/              # Liste, création, modification (ADMIN)
-│       └── employees/page.tsx # Vue Employés (ADMIN)
-├── api/                        # Appels à l'API
-│   ├── client.ts               # Instance Axios + intercepteurs
-│   ├── auth.ts                 # login, fetchMe, logout
-│   ├── users.ts                # CRUD utilisateurs
-│   └── employees.ts            # Liste employés
+│   ├── layout.tsx, providers.tsx, page.tsx     # Layout racine + redirection
+│   ├── login/, forbidden/, not-found.tsx       # Pages publiques
+│   └── (app)/                                  # Routes authentifiées
+│       ├── layout.tsx                          # En-tête + nav + garde
+│       ├── dashboard/
+│       ├── users/                              # Sprint 0 (ADMIN)
+│       ├── employees/                          # Sprint 0 (ADMIN)
+│       └── projects/                           # Sprint 1
+│           ├── page.tsx                        # Liste
+│           ├── new/page.tsx                    # Création
+│           └── [id]/
+│               ├── page.tsx                    # Détail
+│               └── edit/page.tsx              # Modification
+├── api/
+│   ├── client.ts, auth.ts, users.ts, employees.ts   # Sprint 0
+│   └── projects.ts                                   # Sprint 1
 ├── components/
-│   ├── AuthGuard.tsx           # Garde d'authentification et de rôle
-│   ├── AppHeader.tsx           # En-tête + navigation (rôle-adaptée)
-│   ├── RoleBadge.tsx           # Badge de rôle coloré
-│   ├── EmptyState.tsx          # État de liste vide
-│   ├── ErrorState.tsx          # État d'erreur
-│   └── ui/                     # Composants shadcn/ui
-├── context/
-│   └── AuthContext.tsx         # Contexte d'authentification
-├── hooks/                      # Hooks (use-toast, use-mobile)
-├── lib/
-│   ├── utils.ts                # cn()
-│   └── format.ts               # Libellés, formatage dates, erreurs
-├── types/
-│   └── index.ts                # Types TS (User, Role, ApiError…)
-└── __tests__/                  # Tests Vitest
-    ├── login-form.test.tsx
-    └── auth-guard.test.tsx
+│   ├── AuthGuard, AppHeader, RoleBadge, EmptyState, ErrorState
+│   ├── ProjectStatusBadge.tsx                 # Sprint 1
+│   └── ui/                                     # shadcn/ui
+├── context/AuthContext.tsx
+├── lib/format.ts                               # Libellés, dates, erreurs
+├── types/index.ts                              # User, Project, ApiError…
+└── __tests__/                                  # Tests Vitest
 ```
 
 ## Scénario de test manuel
 
-1. **Connexion admin** : ouvrir `/login`, saisir `admin@plateforme.local` /
-   `Admin123!` → redirection vers `/users`. La liste affiche 4 utilisateurs.
-2. **Création** : cliquer « Créer un utilisateur », remplir le formulaire,
-   valider → l'utilisateur apparaît dans la liste.
-3. **Modification** : cliquer l'icône crayon d'un utilisateur → le formulaire
-   est pré-rempli, modifier le nom, enregistrer → toast de succès.
-4. **Suppression** : cliquer l'icône corbeille d'un utilisateur → dialogue de
-   confirmation → confirmer → l'utilisateur disparaît. Le bouton de suppression
-   de son propre compte est désactivé.
-5. **Vue Employés** : cliquer « Employés » → seuls les utilisateurs de rôle
-   EMPLOYE s'affichent.
-6. **Déconnexion** : cliquer l'icône déconnexion → retour à `/login`.
-7. **Connexion employé** : saisir `employe1@plateforme.local` / `Employe123!`
-   → redirection vers `/dashboard`. La navigation ne contient que « Tableau de
-   bord ».
-8. **Accès refusé** : en tant qu'employé, saisir `/users` dans la barre
-   d'adresse → redirection vers `/forbidden` (page 403).
+### Sprint 0 — Authentification et utilisateurs
+1. **Connexion admin** (`admin@plateforme.local` / `Admin123!`) → `/users`.
+2. Créer, modifier, supprimer un utilisateur (confirmation). Le bouton de
+   suppression de son propre compte est désactivé.
+3. Consulter la vue « Employés ».
+4. Se déconnecter, se connecter en employé (`employe1@plateforme.local` /
+   `Employe123!`) → `/dashboard`, navigation limitée.
+5. En tant qu'employé, saisir `/users` → `/forbidden` (403).
+
+### Sprint 1 — Gestion des projets
+6. **Connexion chef de projet** (`chef@plateforme.local` / `Chef123!`).
+7. Aller sur « Projets » → la liste affiche les projets du chef (2 projets au
+   départ : Projet Alpha, Projet Beta).
+8. Cliquer « Créer un projet » → remplir le formulaire (nom, description,
+   dates) → valider → le projet apparaît dans la liste.
+9. Tenter de créer un projet avec une date de fin antérieure à la date de début
+   → erreur sous le champ dateFin.
+10. Tenter de créer un projet avec un nom déjà utilisé → erreur « Ce nom de
+    projet est déjà utilisé » sous le champ nom.
+11. Cliquer sur un projet → page de détail (description, dates, statut « Non
+    commencé », boutons Modifier/Supprimer).
+12. Modifier le projet → formulaire pré-rempli, changer le nom, enregistrer →
+    retour au détail avec le nouveau nom.
+13. Supprimer le projet → dialogue de confirmation → confirmer → le projet
+    disparaît de la liste.
+14. **Connexion admin** → « Projets » → voit tous les projets mais **aucun
+    bouton** Créer/Modifier/Supprimer (lecture seule).
+15. **Connexion employé** → « Projets » → liste vide (aucun projet, aucun
+    bouton de création).
 
 ## Points bloquants
 
-Aucun point bloquant pour ce sprint. Le contrat d'API Sprint 0 est complet et
+Aucun point bloquant. Les contrats d'API Sprint 0 et Sprint 1 sont complets et
 tous les endpoints sont implémentés côté front-end.

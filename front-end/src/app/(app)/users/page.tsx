@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { listUsers, deleteUser } from "@/api/users";
 import type { Role, User } from "@/types";
-import { roleLabel } from "@/lib/format";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { ApiError } from "@/types";

@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useWatch } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { createUser } from "@/api/users";
@@ -30,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Loader2, Save } from "lucide-react";
+import { AuthGuard } from "@/components/AuthGuard";
 
 const createSchema = z.object({
   nom: z.string().min(1, "Le nom est obligatoire."),
@@ -47,6 +47,14 @@ const createSchema = z.object({
 type CreateFormData = z.infer<typeof createSchema>;
 
 export default function NewUserPage() {
+  return (
+    <AuthGuard roles={["ADMIN"]}>
+      <NewUserForm />
+    </AuthGuard>
+  );
+}
+
+function NewUserForm() {
   const router = useRouter();
   const { toast } = useToast();
   const [submitting, setSubmitting] = useState(false);
@@ -89,8 +97,9 @@ export default function NewUserPage() {
         setServerErrors({ email: "Cet email est déjà utilisé." });
       } else if (e.code === "VALIDATION_ERROR") {
         // Erreurs de validation serveur, par champ si disponibles.
-        setServerErrors(getFieldErrors(e));
-        if (Object.keys(getFieldErrors(e)).length === 0) {
+        const fieldErrs = getFieldErrors(e);
+        setServerErrors(fieldErrs);
+        if (Object.keys(fieldErrs).length === 0) {
           toast({
             title: "Données invalides",
             description: e.message,

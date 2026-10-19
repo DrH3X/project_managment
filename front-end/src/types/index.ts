@@ -4,6 +4,9 @@
 /** Rôles possibles d'un utilisateur. */
 export type Role = "ADMIN" | "CHEF_PROJET" | "EMPLOYE";
 
+/** Statuts possibles d'un projet (calculés par le serveur). */
+export type ProjectStatus = "NON_COMMENCE" | "EN_COURS" | "TERMINE";
+
 /** Objet Utilisateur tel que renvoyé par l'API (jamais de mot de passe). */
 export interface User {
   id: string;
@@ -83,4 +86,45 @@ export class ApiError extends Error {
     this.code = detail.code;
     this.details = detail.details;
   }
+}
+
+// --- Projet (Sprint 1) -----------------------------------------------------
+
+/** Objet Projet tel que renvoyé par l'API. */
+export interface Project {
+  id: string;
+  nom: string;
+  description: string;
+  dateDebut: string;
+  dateFin: string;
+  statut: ProjectStatus;
+  chefProjet: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Réponse de GET /api/projects. */
+export interface ProjectListResponse {
+  data: Project[];
+}
+
+/** Réponse de GET /api/projects/:id, POST /api/projects, PUT /api/projects/:id. */
+export interface ProjectResponse {
+  project: Project;
+}
+
+/** Corps de POST /api/projects. */
+export interface CreateProjectPayload {
+  nom: string;
+  description?: string;
+  dateDebut: string;
+  dateFin: string;
+}
+
+/** Corps de PUT /api/projects/:id (au moins un champ). */
+export interface UpdateProjectPayload {
+  nom?: string;
+  description?: string;
+  dateDebut?: string;
+  dateFin?: string;
 }

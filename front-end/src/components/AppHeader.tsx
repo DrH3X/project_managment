@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   Users,
   UserCheck,
+  FolderKanban,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -123,12 +124,8 @@ function NavItem({
 
 /**
  * Menu de navigation latéral, adapté au rôle de l'utilisateur.
- * - ADMIN : Tableau de bord, Utilisateurs, Employés
- * - CHEF_PROJET : Tableau de bord
- * - EMPLOYE : Tableau de bord
- *
- * Les écrans des sprints suivants (Projets, Mes tâches, Tableau de bord stats)
- * seront ajoutés au fur et à mesure.
+ * - Tous : Tableau de bord, Projets
+ * - ADMIN : + Utilisateurs, Employés
  */
 export function AppNav({
   pathname,
@@ -145,6 +142,11 @@ export function AppNav({
       href: "/dashboard",
       label: "Tableau de bord",
       icon: <LayoutDashboard className="h-4 w-4" aria-hidden="true" />,
+    },
+    {
+      href: "/projects",
+      label: "Projets",
+      icon: <FolderKanban className="h-4 w-4" aria-hidden="true" />,
     },
   ];
 

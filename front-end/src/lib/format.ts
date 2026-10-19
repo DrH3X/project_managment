@@ -1,4 +1,4 @@
-import type { Role } from "@/types";
+import type { ProjectStatus, Role } from "@/types";
 
 /** Libellés français des rôles. */
 export const ROLE_LABELS: Record<Role, string> = {
@@ -6,6 +6,18 @@ export const ROLE_LABELS: Record<Role, string> = {
   CHEF_PROJET: "Chef de projet",
   EMPLOYE: "Employé",
 };
+
+/** Libellés français des statuts de projet. */
+export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  NON_COMMENCE: "Non commencé",
+  EN_COURS: "En cours",
+  TERMINE: "Terminé",
+};
+
+/** Renvoie le libellé français d'un statut de projet. */
+export function projectStatusLabel(status: ProjectStatus): string {
+  return PROJECT_STATUS_LABELS[status] ?? status;
+}
 
 /** Renvoie le libellé français d'un rôle. */
 export function roleLabel(role: Role): string {

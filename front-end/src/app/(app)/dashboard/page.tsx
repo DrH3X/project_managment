@@ -10,13 +10,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Users, UserCheck, FolderKanban, ListChecks } from "lucide-react";
+import {
+  Users,
+  UserCheck,
+  FolderKanban,
+  ListChecks,
+} from "lucide-react";
 
 /**
  * Tableau de bord d'accueil par rôle.
- * - ADMIN : raccourcis vers la gestion des utilisateurs et des employés.
- * - CHEF_PROJET : message d'accueil (les projets arrivent au sprint 1).
- * - EMPLOYE : message d'accueil (les tâches arrivent au sprint 2).
+ * - ADMIN : raccourcis vers les projets, les utilisateurs et les employés.
+ * - CHEF_PROJET : raccourci vers ses projets.
+ * - EMPLOYE : raccourci vers les projets auxquels il participe (mes tâches au sprint 2).
  */
 export default function DashboardPage() {
   const { user } = useAuth();
@@ -33,8 +38,36 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      {user.role === "ADMIN" ? (
-        <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Card className="transition-shadow hover:shadow-md">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300">
+                <FolderKanban className="h-5 w-5" aria-hidden="true" />
+              </div>
+              <div>
+                <CardTitle className="text-base">Projets</CardTitle>
+                <CardDescription className="text-xs">
+                  {user.role === "ADMIN"
+                    ? "Consulter tous les projets"
+                    : user.role === "CHEF_PROJET"
+                      ? "Créer et gérer vos projets"
+                      : "Voir les projets auxquels vous participez"}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <Link
+              href="/projects"
+              className="text-sm font-medium text-primary hover:underline"
+            >
+              Accéder aux projets →
+            </Link>
+          </CardContent>
+        </Card>
+
+        {user.role === "ADMIN" ? (
           <Card className="transition-shadow hover:shadow-md">
             <CardHeader>
               <div className="flex items-center gap-3">
@@ -58,7 +91,9 @@ export default function DashboardPage() {
               </Link>
             </CardContent>
           </Card>
+        ) : null}
 
+        {user.role === "ADMIN" ? (
           <Card className="transition-shadow hover:shadow-md">
             <CardHeader>
               <div className="flex items-center gap-3">
@@ -82,33 +117,25 @@ export default function DashboardPage() {
               </Link>
             </CardContent>
           </Card>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
 
-      <Card className="border-dashed">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            {user.role === "CHEF_PROJET" ? (
-              <>
-                <FolderKanban className="h-5 w-5 text-amber-600" aria-hidden="true" />
-                Gestion des projets
-              </>
-            ) : (
-              <>
-                <ListChecks className="h-5 w-5 text-sky-600" aria-hidden="true" />
-                Mes tâches
-              </>
-            )}
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground">
-            {user.role === "CHEF_PROJET"
-              ? "La création et le suivi de vos projets seront disponibles dès le prochain sprint."
-              : "La consultation de vos tâches affectées sera disponible dès le prochain sprint."}
-          </p>
-        </CardContent>
-      </Card>
+      {user.role === "EMPLOYE" ? (
+        <Card className="border-dashed">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <ListChecks className="h-5 w-5 text-sky-600" aria-hidden="true" />
+              Mes tâches
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              La consultation de vos tâches affectées sera disponible dès le
+              prochain sprint.
+            </p>
+          </CardContent>
+        </Card>
+      ) : null}
     </div>
   );
 }

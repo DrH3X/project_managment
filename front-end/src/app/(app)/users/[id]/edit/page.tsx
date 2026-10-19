@@ -32,6 +32,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorState } from "@/components/ErrorState";
 import { Loader2, Save, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { AuthGuard } from "@/components/AuthGuard";
 
 // En modification, le mot de passe est facultatif (au moins un champ requis).
 const editSchema = z
@@ -65,6 +66,14 @@ const editSchema = z
 type EditFormData = z.infer<typeof editSchema>;
 
 export default function EditUserPage() {
+  return (
+    <AuthGuard roles={["ADMIN"]}>
+      <EditUserForm />
+    </AuthGuard>
+  );
+}
+
+function EditUserForm() {
   const params = useParams<{ id: string }>();
   const id = params.id;
   const router = useRouter();
@@ -151,8 +160,9 @@ export default function EditUserPage() {
         });
         router.push("/users");
       } else if (e.code === "VALIDATION_ERROR") {
-        setServerErrors(getFieldErrors(e));
-        if (Object.keys(getFieldErrors(e)).length === 0) {
+        const fieldErrs = getFieldErrors(e);
+        setServerErrors(fieldErrs);
+        if (Object.keys(fieldErrs).length === 0) {
           toast({
             title: "Données invalides",
             description: e.message,
